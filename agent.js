@@ -63,13 +63,6 @@ class Agent {
         if (flag) {
             console.log("coors", x1, y1, x2, y2, x3, y3, d1, d2, d3)
         }
-        // let alpha1 = (y1 - y2) / (x2 - x1)
-        // let beta1 = (y2 * y2 - y1 * y1 + x2 * x2 - x1 * x1 + d1 * d1 - d2 * d2) / (2 * (x2 - x1))
-        // let alpha2 = (y1 - y3) / (x3 - x1)
-        // let beta2 = (y3 * y3 - y1 * y1 + x3 * x3 - x1 * x1 + d1 * d1 - d3 * d3) / (2 * (x3 - x1))
-        // let y = (beta1 - beta2) / (alpha2 - alpha1)
-        // let x = alpha1 * (beta1 - beta2) / (alpha2 - alpha1) + beta1
-        // return {x : x, y : y}
         if (x1 === x2 && y1 === y2) {
             //не могу посчитать
             return this.coords
@@ -156,7 +149,7 @@ class Agent {
         }
         return {firstFlag : firstFlag, secondFlag : distances[0], thirdFlag : distances[1 % distances.length]}
     }
-    analyzeEnv(msg, cmd, p) {
+    analyzeEnv(msg, cmd) {
         if (cmd === "see") {
             try {
                 let distances = Msg.parseSeeMsg(msg);

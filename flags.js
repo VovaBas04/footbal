@@ -28,4 +28,4 @@ const Flags = {
     fcb: {x: 0, y: 34}, frb: {x: 52.5, y: 34}
 }
 
-module.export = Flags;
+module.exports = Flags;

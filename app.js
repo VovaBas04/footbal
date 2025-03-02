@@ -11,11 +11,12 @@ require('./socket')(agent, teamName, VERSION);
 // Движение к флагам "frb", "gl", "fc", затем удар по мячу (цель – ворота "gr")
 agent.controller = new Controller([
     {act: "flag", fl: "gl"},
-    {act: "flag", fl: "fc"},
+    {act: "flag", fl: "flt"},
+    {act: "flag", fl: "fcb"},
     {act: "kick", fl: "b", goal: "gr"}
 ], agent);
 
-const coors = "-10 0";
+const coors = "-20 0";
 
 setTimeout(function () {
     agent.socketSend("move", coors);
