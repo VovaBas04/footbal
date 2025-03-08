@@ -1,5 +1,5 @@
 const dgram = require('dgram') // Модуль для аботы с UDP
-module.exports = function(agent, teamName, version) {
+module.exports = function(agent, teamName, version, isGoalie = false) {
     // Создание сокета
     const socket = dgram.createSocket({type: 'udp4', reuseAddr: true})
     agent.setSocket(socket) // Задание сокета для агента
@@ -12,5 +12,9 @@ module.exports = function(agent, teamName, version) {
         })
     }
     // Инициализация игрока на сервере (без параметра goalie)
-    socket.sendMsg(`(init ${teamName} (version ${version}))`)
+    let goalie = ""
+    if (isGoalie) {
+        goalie = "(goalie)"
+    }
+    socket.sendMsg(`(init ${teamName} (version ${version}) ${goalie})`)
 }

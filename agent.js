@@ -1,7 +1,8 @@
 const Msg = require('./msg')
-let  flag = true
 
 const Flags = require('./flags')
+
+const getAction = require('./action')
 
 // Подключение модуля разбора сообщений от сервера
 const readline = require('readline')
@@ -9,7 +10,9 @@ let i = false;
 // Подключение модуля ввода из командной строки
 class Agent {
     constructor(print = false) {
+        this.decideTree = null
         this.print = print
+        this.sensorData = null
         this.position = "1" // По умолчанию ~ левая половина поля
         this.run = false // Игра начата
         this.act = null // Действия
@@ -195,37 +198,56 @@ class Agent {
             } catch (err) {
                 // console.error("undefined coors");
             }
-            // Если контроллер установлен, получить команду на основе данных "see"
-            if (this.controller) {
-                let sensorData = Msg.parseSeeMsg(msg);
-                let controlCommand = this.controller.update(sensorData);
-                if (controlCommand) {
-                    if (controlCommand.cmd === "dash") {
-                        this.act = { n: "dash", v: controlCommand.value };
-                    } else if (controlCommand.cmd === "turn") {
-                        this.act = { n: "turn", v: controlCommand.value };
-                    } else if (controlCommand.cmd === "kick") {
-                        this.act = { n: "kick", v: controlCommand.value };
-                    }
+            let sensorData = Msg.parseSeeMsg(msg);
+            if (this.run && this.decideTree) {
+                this.act = getAction(this.decideTree, sensorData)
+                this.sensorData = null
+                if (this.act === true) {
+                    console.log("Обновился", this.act)
+                    this.decideTree = null
+                    this.sensorData = sensorData
+                    this.act = null
+                }
+            } else {
+                if (!this.decideTree) {
+                    this.sensorData = sensorData
                 }
             }
         }
     } // Анализ сообщения
+    getSensorData() {
+        return this.sensorData
+    }
+
+    setAct(act) {
+        this.act = act;
+    }
+
+    setTree(tree) {
+        this.decideTree = tree
+    }
+
+    getRun() {
+        return this.run
+    }
+
     sendCmd() {
-        if (this.run) {
-            if (this.act) {
-                if (this.act.n == "kick") {
-                    // Если значение команды kick уже задано как строка с параметрами, отправляем его напрямую
-                    if (typeof this.act.v === "string" && this.act.v.includes(" ")) {
-                        this.socketSend("kick", this.act.v);
-                    } else {
-                        this.socketSend("kick", this.act.v + " 0");
-                    }
-                } else {
-                    this.socketSend(this.act.n, this.act.v);
-                }
-            }
-            this.act = null;
+        if (this.run && this.act) {
+            this.socketSend(this.act.n, this.act.v)
+            this.act = null
+        //     if (this.act) {
+        //         if (this.act.n == "kick") {
+        //             // Если значение команды kick уже задано как строка с параметрами, отправляем его напрямую
+        //             if (typeof this.act.v === "string" && this.act.v.includes(" ")) {
+        //                 this.socketSend("kick", this.act.v);
+        //             } else {
+        //                 this.socketSend("kick", this.act.v + " 0");
+        //             }
+        //         } else {
+        //             this.socketSend(this.act.n, this.act.v);
+        //         }
+        //     }
+        //     this.act = null;
         }
     }
 }
