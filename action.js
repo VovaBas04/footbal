@@ -4,7 +4,9 @@ module.exports = function getAction(dt, p) {
     let manager = new Manager(p)
 
     function execute(dt, title) {
-        console.log(title)
+        if (dt.state.print) {
+            console.log(title, dt.state.isCatch)
+        }
         const action = dt[title]
         if (typeof action.exec == "function") {
             action.exec(manager, dt.state)
@@ -20,7 +22,6 @@ module.exports = function getAction(dt, p) {
             return action.command(manager, dt.state)
         }
         if (typeof action.changeTree == "function") {
-            console.log("Я в change")
             return true
         }
         throw new Error(`Unexpected command in DT ${dt.state}`)

@@ -1,10 +1,12 @@
 const FL = "flag", KI = "kick"
 const DecideTree = require('./mainTree.js');
-const DecideTreeSupport = require('./supportTree.js');
+let DecideTreeSupport = require('./supportTree.js');
 module.exports = {
     state: {
-        print : true,
+        print : false,
         next: 0,
+        ids : [],
+        distances : [0, 0, 0],
         value : 0,
         sequence: [{act: FL, fl: "b"}, {act: FL, fl: "gl"}, {act: KI, fl: "b", goal: "gr"}],
         commands: []
@@ -14,10 +16,10 @@ module.exports = {
             state.action = state.sequence[state.next];
             state.commands = []
         },
-        next: "isVisiblePlayer"
+        next: "isVisibleAllTarget"
     },
-    isVisiblePlayer: {
-        condition: (mgrs, state) => mgrs.filter(mgr => !mgr.getVisible(state.action.fl)).length <= 1,
+    isVisibleAllTarget: {
+        condition: (mgrs, state) => state.distances.filter(item => item).length === state.distances.length,
         trueCond: "getTree",
         falseCond: "rotate25"
     },
@@ -29,29 +31,37 @@ module.exports = {
             for (let i = 0; i < mgrs.length; i++) {
                 if (!mgrs[i].getVisible(state.action.fl)) {
                     state.commands.push({n: "turn", v: "25"})
+                } else {
+                    state.distances[i] = mgrs[i].getDistance(state.action.fl)
                 }
             }
         }, next: "sendCommands",
     },
     getTree: {
         getTree: (mgrs, state) => {
-            trees = []
-            let isMain = false
-            for (let i = 0; i < mgrs.length - 1; i++) {
-                if (mgrs[i].getVisible(state.action.fl)) {
-                    trees.push(DecideTreeSupport)
-                } else {
-                    isMain = true
-                    DecideTree.state.action = state.action
-                    trees.push(DecideTree)
+            let minDistance = 100000
+            let mainId = 0
+            for (let i = 0; i < state.distances.length; i++) {
+                if (state.distances[i] < minDistance) {
+                    minDistance = state.distances[i]
+                    mainId = state.ids[i]
                 }
             }
-            if (isMain) {
-                trees.push(DecideTreeSupport)
-            } else {
-                DecideTree.state.action = state.action
-                trees.push(DecideTree)
+
+            trees = []
+            // console.log(state.ids)
+            for (let i = 0; i < mgrs.length; i++) {
+                if (state.ids[i] === mainId) {
+                    DecideTree.state.action = state.action
+                    trees.push(DecideTree)
+                } else {
+                    DecideTreeSupport.state.sequence = [{act: FL, fl: `^p.*Supercomputer.*${mainId}.*`}]
+                    console.log(state.ids[i])
+                    // console.log(DecideTreeSupport.state.action)
+                    trees.push(DecideTreeSupport)
+                }
             }
+            state.distances = [0, 0, 0]
 
             return trees
         }

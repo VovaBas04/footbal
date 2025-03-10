@@ -2,7 +2,7 @@ const FL = "flag"
 module.exports = {
     state: {
         isCatch: false,
-        print: false,
+        print: true,
         next: 0,
         action: null,
         sequence: [{act: FL, fl: "gr", move: true}, {act: FL, fl: "b", move: false}],
@@ -16,9 +16,14 @@ module.exports = {
         next: "isVisibleFlag"
     },
     isVisibleFlag: {
-        condition: (mgr, state) => mgr.getVisible(state.action.fl),
-        trueCond: "isMoveToFlag",
+        condition: (mgr, state) => mgr.getVisible(state.action.fl) || state.isCatch,
+        trueCond: "isCatch",
         falseCond: "rotate",
+    },
+    isCatch : {
+        condition: (mgr, state) => state.isCatch,
+        trueCond: "kickBall",
+        falseCond: "isMoveToFlag",
     },
     isMoveToFlag: {
         condition: (mgr, state) => state.action.move,
@@ -31,48 +36,55 @@ module.exports = {
         falseCond: "isVerySmallDistanceBall",
     },
     isVerySmallDistanceBall: {
-        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 2 && state.isCatch,
+        condition: (mgr, state) => {console.log(mgr.getDistance(state.action.fl), "dist"); return  mgr.getDistance(state.action.fl) < 2},
         trueCond: "catchBall",
-        falseCond: "isCatch",
-    },
-    isCatch : {
-        condition: (mgr, state) => state.isCatch,
-        trueCond: "kickBall",
         falseCond: "isSmallDistanceBall",
     },
     isSmallDistanceBall: {
-        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 7,
+        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 20,
         trueCond: "moveToBall",
         falseCond: "kickBall",
     },
     moveToBall : {
         exec(mgr, state) {
-            state.action.move = true
+            state.sequence[state.next].move = true
         }, next: "isVisibleFlag",
     },
     catchBall : {
         exec(mgr, state) {
             state.command = {n: "catch", v: mgr.getAngle(state.action.fl)};
             state.isCatch = true
+            state.sequence[state.next].move = false
         }, next: "sendCommand",
     },
     kickBall: {
         exec(mgr, state) {
-            state.isCatch = false
-            console.log(mgr.getDistance(state.action.fl))
+            if (state.isCatch) {
+                state.next--
+                state.isCatch = false
+            }
+            console.log(state.isCatch)
             state.command = {n: "kick", v: `100 ${mgr.getAngle(state.action.fl)}`}
         }, next: "sendCommand",
     },
     isMoveToGr: {
-        condition: (mgr, state) => mgr.getDistance(state.action.fl) > 5,
+        condition: (mgr, state) => mgr.getDistance(state.action.fl) > 2,
         trueCond: "moveToGr",
-        falseCond: "changeState",
+        falseCond: "isChangeState",
+    },
+    isChangeState: {
+        condition: (mgr, state) => state.next !== state.sequence.length - 1,
+        trueCond: "changeState",
+        falseCond: "disableMove",
+    },
+    disableMove : {
+        exec(mgr, state) {
+            state.sequence[state.next].move = false
+        }, next: "sendCommand",
     },
     changeState: {
         exec(mgr, state) {
-            if (state.next !== state.sequence.length - 1) {
-                state.next++;
-            }
+            state.next++
             state.action = state.sequence[state.next];
         }, next: "root"
     },

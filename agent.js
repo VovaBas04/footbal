@@ -63,9 +63,6 @@ class Agent {
         if(p[1]) this.id = p[1] // id игрока
     }
     calculatePosition(x1, y1, x2, y2, x3, y3, d1, d2, d3, flag = false) {
-        if (flag) {
-            console.log("coors", x1, y1, x2, y2, x3, y3, d1, d2, d3)
-        }
         if (x1 === x2 && y1 === y2) {
             //не могу посчитать
             return this.coords
@@ -97,9 +94,6 @@ class Agent {
         let a = alpha * alpha + 1
         let b = -2 * (alpha * (x1 - beta) + y1)
         let c = Math.pow(x1 - beta, 2) + Math.pow(y1, 2) - Math.pow(d1, 2)
-        if (flag) {
-            console.log("coefs", a, b, c)
-        }
         // if (flag) {
         //     console.log("flags", x1, y1, x2, y2)
         // }
@@ -113,9 +107,6 @@ class Agent {
             let x_ans_2 = x1 - Math.sqrt(Math.pow(d1, 2) - Math.pow(y - y1, 2))
             for (let x of [x_ans_1, x_ans_2]) {
                 let error =  Math.abs(Math.pow(x - x3, 2) + Math.pow(y - y3, 2) - Math.pow(d3, 2))
-                if (flag) {
-                    console.log("x y", x, y_ans_1, y_ans_2, "err", error)
-                }
                 if (errorMin > error) {
                     errorMin = error
                     decide = {x : x, y : y}
@@ -201,9 +192,9 @@ class Agent {
             let sensorData = Msg.parseSeeMsg(msg);
             if (this.run && this.decideTree) {
                 this.act = getAction(this.decideTree, sensorData)
+                // console.log(this.act)
                 this.sensorData = null
                 if (this.act === true) {
-                    console.log("Обновился", this.act)
                     this.decideTree = null
                     this.sensorData = sensorData
                     this.act = null

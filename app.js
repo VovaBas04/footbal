@@ -13,28 +13,27 @@ let agent3 = new Agent(true);
 let goalie = new Agent(false);
 goalie.setTree(goalieTree)
 setTimeout(() => {
+    chooseTree.state.ids = [agent.id, agent2.id, agent3.id]
     setInterval(() => {
-        console.log("Давай определю")
         let sensorsData = [
             agent.getSensorData(),
             agent2.getSensorData(),
             agent3.getSensorData(),
         ]
-        if (sensorsData.find((item) => !item) === null && sensorsData.find((item) => item))  {
+        if (sensorsData.find((item) => !item) === null && sensorsData.find((item) => item)) {
             agent.setTree(null)
             agent2.setTree(null)
             agent3.setTree(null)
-            console.log("Тут")
+            chooseTree.state.next++
             return
         }
 
-        console.log(sensorsData.find((item) => !item), sensorsData.find((item) => item))
-
         if (sensorsData[0] && agent.getRun()) {
-            command = getTree(chooseTree, sensorsData)
-            console.log("Тут", chooseTree.state.next)
+            if (chooseTree.state.next === 3) {
+                return;
+            }
+            let command = getTree(chooseTree, sensorsData)
             if (command.type === 'tree') {
-                chooseTree.state.next++
                 agent.setTree(command.value[0])
                 agent2.setTree(command.value[1])
                 agent3.setTree(command.value[2])
@@ -44,7 +43,7 @@ setTimeout(() => {
                 agent3.setAct(command.value[2])
             }
         }
-    }, 100)
+    }, 200)
 },3000)
 
 require('./socket')(agent, teamName, VERSION);

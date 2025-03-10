@@ -1,7 +1,7 @@
 const FL = "flag"
 module.exports = {
     state: {
-        print : true,
+        print : false,
         next: 0,
         value : 0,
         sequence: [{act: FL, fl: "^p.*Supercomputer.*"}],
@@ -10,6 +10,7 @@ module.exports = {
     root: {
         exec(mgr, state) {
             state.action = state.sequence[state.next];
+            console.log(state.sequence[state.next], "Я тут");
             state.command = null
         },
         next: "isSmallDistance"
@@ -18,7 +19,7 @@ module.exports = {
         command: (mgr, state) => state.command
     },
     isSmallDistance: {
-        condition: (mgr, state) => {return !mgr.getVisible(state.action.fl) || mgr.getDistance(state.action.fl) < 3 && Math.abs(mgr.getAngle(state.action.fl) < 40)},
+        condition: (mgr, state) => {return !mgr.getVisible(state.action.fl) || mgr.getDistance(state.action.fl) < 3 && Math.abs(mgr.getAngle(state.action.fl) < 40) || mgr.getVisible("^p.*Supercomputer.*")  && mgr.getDistance("^p.*Supercomputer.*") < 3 && Math.abs(mgr.getAngle("^p.*Supercomputer.*") < 40) },
         trueCond: "rotate30",
         falseCond: "isBigDistance",
     },
@@ -42,7 +43,6 @@ module.exports = {
     rotateAngle: {
         exec(mgr, state) {
             state.command = {n: "turn", v: state.value};
-            console.log("Абоба", state.command)
         }, next: "sendCommand",
     },
     dash : {
@@ -61,7 +61,7 @@ module.exports = {
         falseCond: "isSmallDistance2",
     },
     isSmallDistance2: {
-        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 7,
+        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 15,
         trueCond: "dash20",
         falseCond: "dash40",
     },
