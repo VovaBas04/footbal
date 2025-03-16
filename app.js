@@ -3,18 +3,17 @@ const Controller = require('./controller'); // Импорт контроллер
 const VERSION = 7; // Версия сервера
 
 let teamName = "Supercomputer"; // Имя команды
-let agent = new Agent(true); // Создание экземпляра агента
+let agent = new Agent(); // Создание экземпляра агента
 
 require('./socket')(agent, teamName, VERSION);
 
-// Инициализируем контроллер с последовательностью действий:
-// Движение к флагам "frb", "gl", "fc", затем удар по мячу (цель – ворота "gr")
+// Инициализируем контроллер с последовательностью действий
 agent.controller = new Controller([
     {act: "flag", fl: "gl"},
     {act: "flag", fl: "flt"},
     {act: "flag", fl: "fcb"},
     {act: "kick", fl: "b", goal: "gr"}
-], agent);
+], true); // true для включения вывода отладочной информации
 
 const coors = "-20 0";
 
@@ -24,6 +23,5 @@ setTimeout(function () {
 
 process.on('SIGINT', () => {
     agent.socketSend("bye", "");
-    // Здесь можно добавить свой код при обработке сигнала
-    process.exit(); // Завершаем процесс
+    process.exit();
 });
