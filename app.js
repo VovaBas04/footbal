@@ -2,36 +2,44 @@ const Agent = require('./agent'); // Импорт агента
 const Controller = require('./controller'); // Импорт контроллера
 const VERSION = 7; // Версия сервера
 
-const goalieTree = require('./goalie.js')
+const goalieTree = require('./trees/goalie.js')
 
 let teamName = "Supercomputer"; // Имя команды
-let agent0 = new Agent();
-let agent = new Agent()// Создание экземпляра агента
+let enemyName = "Sinep";
+let passer = new Agent();
+let scorer = new Agent();
+let enemy1  = new Agent();
+let enemy2 = new Agent();
 
 
 // Инициализируем контроллер с последовательностью действий
-agent.controller = new Controller([], true, goalieTree); // true для включения вывода отладочной информации
+passer.controller = new Controller();
+scorer.controller = new Controller();
+enemy1.controller = new Controller();
+enemy2.controller = new Controller();
 
-agent0.controller = new Controller([
-    {act: "flag", fl: "gl"},
-    {act: "flag", fl: "flt"},
-    {act: "flag", fl: "fcb"},
-    {act: "kick", fl: "b", goal: "gr"}
-], true);
+require('./socket')(passer, teamName, VERSION);
+require('./socket')(scorer, teamName, VERSION);
+require('./socket')(enemy1, enemyName, VERSION);
+require('./socket')(enemy2, enemyName, VERSION);
 
-require('./socket')(agent0, teamName, VERSION);
-require('./socket')(agent, "ABOBA", VERSION, true);
 
-const coors0 = "-20 0";
-const coors = "-20 0";
+const passerCoors = "-10 10";
+const scorerCoors = "-10 -10";
+const enemy1Coors = "-52.5 7.01";
+const enemy2Coors = "-52.5 -7.01";
 
 setTimeout(function () {
-    agent0.socketSend("move", coors0);
-    agent.socketSend("move", coors);
+    passer.socketSend("move", passerCoors);
+    scorer.socketSend("move", scorerCoors);
+    enemy1.socketSend("move", enemy1Coors);
+    enemy2.socketSend("move", enemy2Coors);
 }, 1000);
 
 process.on('SIGINT', () => {
-    agent0.socketSend("bye", "");
-    agent.socketSend("bye", "");
+    passer.socketSend("bye", "Passer Bye!");
+    scorer.socketSend("bye", "Scorer Bye!");
+    enemy1.socketSend("bye", "Enemy1 Bye!");
+    enemy2.socketSend("bye", "Enemy2 Bye!");
     process.exit();
 });

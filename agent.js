@@ -10,7 +10,7 @@ class Agent {
      * Создает экземпляр агента
      * @param {boolean} print - флаг для вывода отладочной информации
      */
-    constructor(print = false) {
+    constructor() {
         this.controller = null; // Контроллер будет установлен позже
         this.act = null // Действия
         this.r1 = readline.createInterface({ // Чтение консоли
