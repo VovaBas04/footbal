@@ -1,23 +1,54 @@
-const MessageProcessor = require('./message-processor');
+const Msg = require('./msg');
+const PositionUtils = require('./position-utils');
+const Flags = require('./flags');
 
 const getAction = require('./action.js');
 
 const goalieTree = require('./goalie.js')
 
 /**
- * Класс контроллера для управления агентом
+ * Класс контроллера для управления состоянием и действиями
  */
 class Controller {
     /**
      * Создает экземпляр контроллера
      * @param {Array} actions - массив действий для выполнения
-     * @param {Object} agent - ссылка на агента
+     * @param {boolean} print - флаг для вывода отладочной информации
      */
-    constructor(actions, agent) {
+    constructor(actions, print = false) {
         this.actions = actions;
         this.currentActionIndex = 0;
-        this.agent = agent;
-        this.messageProcessor = new MessageProcessor(agent);
+        this.position = "r"; // По умолчанию ~ левая половина поля
+        this.run = false; // Игра начата
+        this.act = null; // Действия
+        this.coords = {x: 0, y: 0}; // Координаты
+        this.enemy_coors = null; // Координаты противника
+        this.print = print; // Флаг для вывода отладочной информации
+        this.id = null; // id игрока
+    }
+
+    /**
+     * Получить текущее действие
+     * @returns {Object|null} текущее действие
+     */
+    getCurrentAction() {
+        return this.act;
+    }
+
+    /**
+     * Сбросить текущее действие
+     */
+    clearAction() {
+        this.act = null;
+    }
+
+    /**
+     * Установить действие
+     * @param {string} cmd - команда
+     * @param {string|number} value - значение
+     */
+    setAction(cmd, value) {
+        this.act = { n: cmd, v: value };
     }
 
     /**
@@ -26,7 +57,132 @@ class Controller {
      * @returns {Object} - разобранное сообщение
      */
     processMessage(msg) {
-        return this.messageProcessor.processMsg(msg);
+        let data = Msg.parseMsg(msg);
+        if (!data) throw new Error("Parse error\n" + msg);
+
+        // Обработка различных типов сообщений
+        if (data.cmd == "hear") {
+            this.processHearMsg(data);
+        } else if (data.cmd == "init") {
+            this.processInitMsg(data.p);
+        } else if (data.cmd == "see") {
+            this.processSeeMsg(data.msg);
+        }
+
+        return data;
+    }
+
+    /**
+     * Обрабатывает сообщение типа "hear"
+     * @param {Object} data - разобранное сообщение
+     */
+    processHearMsg(data) {
+        this.run = true;
+        if (data.msg.includes("goal")) {
+            this.reset();
+        }
+    }
+
+    /**
+     * Обрабатывает сообщение типа "init"
+     * @param {Array} p - параметры сообщения
+     */
+    processInitMsg(p) {
+        if (p[0] == "r") this.position = "r"; // Правая половина поля
+        if (p[1]) this.id = p[1]; // id игрока
+    }
+
+    /**
+     * Обрабатывает сообщение типа "see"
+     * @param {string} msg - содержимое сообщения
+     */
+    processSeeMsg(msg) {
+        try {
+            let distances = Msg.parseSeeMsg(msg);
+            this.updateAgentPosition(distances);
+            this.updateEnemyPosition(distances);
+            this.updateControllerCommand(distances);
+        } catch (err) {
+            // console.error("undefined coors");
+        }
+    }
+
+    /**
+     * Обновляет позицию агента на основе видимых флагов
+     * @param {Array} distances - массив с информацией о видимых объектах
+     */
+    updateAgentPosition(distances) {
+        let flagsForDistance = PositionUtils.chooseFlags(distances);
+        let firstFlag = flagsForDistance.firstFlag.key;
+        let secondFlag = flagsForDistance.secondFlag.key;
+        let thirdFlag = flagsForDistance.thirdFlag.key;
+        let oldCoords = this.coords;
+        
+        this.coords = PositionUtils.calculatePosition(
+            Flags[firstFlag].x, Flags[firstFlag].y,
+            Flags[secondFlag].x, Flags[secondFlag].y,
+            Flags[thirdFlag].x, Flags[thirdFlag].y,
+            flagsForDistance.firstFlag.distance,
+            flagsForDistance.secondFlag.distance,
+            flagsForDistance.thirdFlag.distance,
+            false,
+            oldCoords
+        );
+        
+        if (this.coords === undefined) {
+            this.coords = oldCoords;
+        }
+    }
+
+    /**
+     * Обновляет позицию противника на основе видимых флагов
+     * @param {Array} distances - массив с информацией о видимых объектах
+     */
+    updateEnemyPosition(distances) {
+        let flagsForEnemy = PositionUtils.chooseFlagsForEnemy(distances);
+        if (flagsForEnemy && this.print) {
+            let secondFlag = flagsForEnemy.secondFlag.key;
+            let thirdFlag = flagsForEnemy.thirdFlag.key;
+            let da1 = Math.sqrt(
+                Math.pow(flagsForEnemy.secondFlag.distance, 2) +
+                Math.pow(flagsForEnemy.firstFlag.distance, 2) -
+                2 * flagsForEnemy.firstFlag.distance * flagsForEnemy.secondFlag.distance *
+                Math.cos(Math.PI / 180 * Math.abs(flagsForEnemy.secondFlag.alpha - flagsForEnemy.firstFlag.alpha))
+            );
+            let da2 = Math.sqrt(
+                Math.pow(flagsForEnemy.thirdFlag.distance, 2) +
+                Math.pow(flagsForEnemy.firstFlag.distance, 2) -
+                2 * flagsForEnemy.firstFlag.distance * flagsForEnemy.thirdFlag.distance *
+                Math.cos(Math.PI / 180 * Math.abs(flagsForEnemy.thirdFlag.alpha - flagsForEnemy.firstFlag.alpha))
+            );
+            
+            let save = this.enemy_coors;
+            this.enemy_coors = PositionUtils.calculatePosition(
+                this.coords.x, this.coords.y,
+                Flags[secondFlag].x, Flags[secondFlag].y,
+                Flags[thirdFlag].x, Flags[thirdFlag].y,
+                flagsForEnemy.firstFlag.distance,
+                da1,
+                da2,
+                false,
+                save
+            );
+            
+            if (this.enemy_coors === undefined) {
+                this.enemy_coors = save;
+            }
+        }
+    }
+
+    /**
+     * Обновляет команду контроллера на основе видимых объектов
+     * @param {Array} distances - массив с информацией о видимых объектах
+     */
+    updateControllerCommand(distances) {
+        let controlCommand = this.update(distances);
+        if (controlCommand) {
+            this.act = { n: controlCommand.cmd, v: controlCommand.value };
+        }
     }
 
     /**
