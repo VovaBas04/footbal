@@ -194,32 +194,12 @@ class Agent {
                 this.act = getAction(this.decideTree, sensorData)
                 // console.log(this.act)
                 this.sensorData = null
-                if (this.act === true) {
-                    this.decideTree = null
-                    this.sensorData = sensorData
-                    this.act = null
-                }
-            } else {
-                if (!this.decideTree) {
-                    this.sensorData = sensorData
-                }
             }
         }
     } // Анализ сообщения
-    getSensorData() {
-        return this.sensorData
-    }
-
-    setAct(act) {
-        this.act = act;
-    }
 
     setTree(tree) {
         this.decideTree = tree
-    }
-
-    getRun() {
-        return this.run
     }
 
     sendCmd() {

@@ -1,6 +1,6 @@
 const Agent = require('./agent');
-const getTree = require("./chooseAction.js");
-let chooseTree = require('./chooseTree.js');
+let mainTree = require('./mainTree.js');
+let supportTree = require('./supportTree.js');
 let goalieTree = require('./goalie.js');
 // const Controller = require('./controller'); // Импорт контроллера
 const VERSION = 7; // Версия сервера
@@ -12,39 +12,8 @@ let agent2 = new Agent(true);
 // let agent3 = new Agent(true);
 let goalie = new Agent(false);
 goalie.setTree(goalieTree)
-setTimeout(() => {
-    chooseTree.state.ids = [agent.id, agent2.id] //, agent3.id]
-    setInterval(() => {
-        let sensorsData = [
-            agent.getSensorData(),
-            agent2.getSensorData(),
-            // agent3.getSensorData(),
-        ]
-        if (sensorsData.find((item) => !item) === null && sensorsData.find((item) => item)) {
-            agent.setTree(null)
-            agent2.setTree(null)
-            // agent3.setTree(null)
-            chooseTree.state.next++
-            return
-        }
-
-        if (sensorsData[0] && agent.getRun()) {
-            if (chooseTree.state.next === 3) {
-                return;
-            }
-            let command = getTree(chooseTree, sensorsData)
-            if (command.type === 'tree') {
-                agent.setTree(command.value[0])
-                agent2.setTree(command.value[1])
-                // agent3.setTree(command.value[2])
-            } else {
-                agent.setAct(command.value[0])
-                agent2.setAct(command.value[1])
-                // agent3.setAct(command.value[2])
-            }
-        }
-    }, 200)
-},3000)
+agent.setTree(mainTree)
+agent2.setTree(supportTree)
 
 require('./socket')(agent, teamName, VERSION);
 require('./socket')(agent2, teamName, VERSION);

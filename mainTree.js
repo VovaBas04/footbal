@@ -1,14 +1,16 @@
-const FL = "flag"
+const FL = "flag", KI = "kick"
 module.exports = {
     state: {
         print : false,
         next: 0,
+        sequence: [{act: FL, fl: "b"}, {act: FL, fl: "gl"}, {act: KI, fl: "b", goal: "gr"}],
         action : null,
         command: null
     },
     root: {
         exec(mgr, state) {
             state.command = null
+            state.action = state.sequence[state.next]
         },
         next: "goalVisible"
     },
@@ -33,9 +35,9 @@ module.exports = {
         falseCond: "farGoal",
     },
     closeFlag: {
-        changeTree() {
-            return true
-        },
+        exec(mgr, state) {
+            state.next = (state.next + 1) % state.sequence.length;
+        }, next: "root",
     },
     farGoal: {
         condition:
@@ -65,8 +67,8 @@ module.exports = {
         falseCond: "farGoal",
     },
     closeBall: {
-        condition:
-            (mgr, state) => mgr.getVisible(state.action.goal), trueCond: "ballGoalVisible",
+        condition: (mgr, state) => mgr.getVisible(state.action.goal),
+        trueCond: "ballGoalVisible",
         falseCond: "ballGoalInvisible",
     },
     ballGoalVisible: {

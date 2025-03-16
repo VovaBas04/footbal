@@ -21,9 +21,6 @@ module.exports = function getAction(dt, p) {
         if (typeof action.command == "function") {
             return action.command(manager, dt.state)
         }
-        if (typeof action.changeTree == "function") {
-            return true
-        }
         throw new Error(`Unexpected command in DT ${dt.state}`)
     }
 
