@@ -1,5 +1,9 @@
 const MessageProcessor = require('./message-processor');
 
+const getAction = require('./action.js');
+
+const goalieTree = require('./goalie.js')
+
 /**
  * Класс контроллера для управления агентом
  */
@@ -31,15 +35,7 @@ class Controller {
      * @returns {Object|null} - команда для выполнения
      */
     update(sensorData) {
-        let currentAction = this.actions[this.currentActionIndex];
-        if (!currentAction) return null;
-
-        if (currentAction.act === "flag") {
-            return this.handleFlagAction(currentAction, sensorData);
-        } else if (currentAction.act === "kick") {
-            return this.handleKickAction(currentAction, sensorData);
-        }
-        return null;
+        return getAction(goalieTree, sensorData)
     }
 
     /**
