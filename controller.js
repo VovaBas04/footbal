@@ -17,6 +17,7 @@ class Controller {
     constructor(actions, print = false, dt = null) {
         this.actions = actions;
         this.currentActionIndex = 0;
+        this.sensorData = null;
         this.position = "r"; // По умолчанию ~ левая половина поля
         this.run = false; // Игра начата
         this.act = null; // Действия
@@ -99,10 +100,10 @@ class Controller {
      */
     processSeeMsg(msg) {
         try {
-            let sensorData = Msg.parseSeeMsg(msg);
-            this.updateAgentPosition(sensorData);
-            this.updateEnemyPosition(sensorData);
-            this.updateControllerCommand(sensorData);
+            this.sensorData = Msg.parseSeeMsg(msg);
+            this.updateAgentPosition();
+            this.updateEnemyPosition();
+            this.updateControllerCommand();
         } catch (err) {
             // console.error("undefined coors");
         }
@@ -112,8 +113,8 @@ class Controller {
      * Обновляет позицию агента на основе видимых флагов
      * @param {Array} sensorData - массив с информацией о видимых объектах
      */
-    updateAgentPosition(sensorData) {
-        let flagsForDistance = PositionUtils.chooseFlags(sensorData);
+    updateAgentPosition() {
+        let flagsForDistance = PositionUtils.chooseFlags(this.sensorData);
         let firstFlag = flagsForDistance.firstFlag.key;
         let secondFlag = flagsForDistance.secondFlag.key;
         let thirdFlag = flagsForDistance.thirdFlag.key;
@@ -139,8 +140,8 @@ class Controller {
      * Обновляет позицию противника на основе видимых флагов
      * @param {Array} sensorData - массив с информацией о видимых объектах
      */
-    updateEnemyPosition(sensorData) {
-        let flagsForEnemy = PositionUtils.chooseFlagsForEnemy(sensorData);
+    updateEnemyPosition() {
+        let flagsForEnemy = PositionUtils.chooseFlagsForEnemy(this.sensorData);
         if (flagsForEnemy && this.print) {
             let secondFlag = flagsForEnemy.secondFlag.key;
             let thirdFlag = flagsForEnemy.thirdFlag.key;
@@ -179,8 +180,8 @@ class Controller {
      * Обновляет команду контроллера на основе видимых объектов
      * @param {Array} sensorData - массив с информацией о видимых объектах
      */
-    updateControllerCommand(sensorData) {
-        let controlCommand = this.update(sensorData);
+    updateControllerCommand() {
+        let controlCommand = this.update();
         if (controlCommand) {
             this.act = controlCommand;
         }
@@ -191,18 +192,18 @@ class Controller {
      * @param {Array} sensorData - данные сенсоров
      * @returns {Object|null} - команда для выполнения
      */
-    update(sensorData) {
+    update() {
         if (this.run) {
             if(this.dt){
-                return getAction(this.dt, sensorData)
+                return getAction(this.dt, this.sensorData)
             } else {
                 let currentAction = this.actions[this.currentActionIndex];
                 if (!currentAction) return null;
 
                 if (currentAction.act === "flag") {
-                    return this.handleFlagAction(currentAction, sensorData);
+                    return this.handleFlagAction(currentAction);
                 } else if (currentAction.act === "kick") {
-                    return this.handleKickAction(currentAction, sensorData);
+                    return this.handleKickAction(currentAction);
                 }
             }
         }
@@ -215,8 +216,8 @@ class Controller {
      * @param {Array} sensorData - данные сенсоров
      * @returns {Object} - команда для выполнения
      */
-    handleFlagAction(action, sensorData) {
-        let target = sensorData.find(item => item.key === action.fl);
+    handleFlagAction(action) {
+        let target = this.sensorData.find(item => item.key === action.fl);
         if (!target) {
             return { n: "turn", v: 20 };
         } else {
@@ -239,8 +240,8 @@ class Controller {
      * @param {Array} sensorData - данные сенсоров
      * @returns {Object} - команда для выполнения
      */
-    handleKickAction(action, sensorData) {
-        let ball = sensorData.find(item => item.key === action.fl);
+    handleKickAction(action) {
+        let ball = this.sensorData.find(item => item.key === action.fl);
         if (!ball) {
             return { n: "turn", v: 20 };
         } else {
@@ -253,7 +254,7 @@ class Controller {
             } else {
                 // Мяч в зоне удара
                 // Проверяем, видны ли ворота (цель удара)
-                let goal = sensorData.find(item => item.key === action.goal);
+                let goal = this.sensorData.find(item => item.key === action.goal);
                 if (goal) {
                     // Если ворота видны – сильный удар по направлению ворот
                     return { n: "kick", v: `100 ${goal.alpha}` };
