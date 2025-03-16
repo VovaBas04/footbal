@@ -3,9 +3,11 @@ const Controller = require('./controller'); // Импорт контроллер
 const VERSION = 7; // Версия сервера
 
 let teamName = "Supercomputer"; // Имя команды
-let agent = new Agent(true); // Создание экземпляра агента
+let agent0 = new Agent(true);
+let agent = new Agent(true)// Создание экземпляра агента
 
-require('./socket')(agent, teamName, VERSION);
+require('./socket')(agent0, teamName, VERSION);
+require('./socket')(agent, "ABOBA", VERSION, true);
 
 // Инициализируем контроллер с последовательностью действий:
 // Движение к флагам "frb", "gl", "fc", затем удар по мячу (цель – ворота "gr")

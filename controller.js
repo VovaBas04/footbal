@@ -35,7 +35,10 @@ class Controller {
      * @returns {Object|null} - команда для выполнения
      */
     update(sensorData) {
-        return getAction(goalieTree, sensorData)
+        if (this.agent.run) {
+            return getAction(goalieTree, sensorData)
+        }
+        return null
     }
 
     /**
