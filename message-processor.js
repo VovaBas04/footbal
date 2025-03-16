@@ -147,13 +147,7 @@ class MessageProcessor {
         if (this.agent.controller) {
             let controlCommand = this.agent.controller.update(distances);
             if (controlCommand) {
-                if (controlCommand.cmd === "dash") {
-                    this.agent.act = { n: "dash", v: controlCommand.value };
-                } else if (controlCommand.cmd === "turn") {
-                    this.agent.act = { n: "turn", v: controlCommand.value };
-                } else if (controlCommand.cmd === "kick") {
-                    this.agent.act = { n: "kick", v: controlCommand.value };
-                }
+                    this.agent.act = { n: controlCommand.cmd, v: controlCommand.value };
             }
         }
     }
