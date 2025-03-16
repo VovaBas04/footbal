@@ -12,7 +12,6 @@ class Agent {
      */
     constructor(print = false) {
         this.controller = null; // Контроллер будет установлен позже
-        this.run = false // Игра начата
         this.act = null // Действия
         this.r1 = readline.createInterface({ // Чтение консоли
             input: process.stdin,
