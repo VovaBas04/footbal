@@ -47,7 +47,7 @@ module.exports = {
     },
     dash : {
         exec(mgr, state) {
-            state.command = {n: "dash", v: 80};
+            state.command = {n: "dash", v: 100};
         }, next: "sendCommand",
     },
     rotate30: {

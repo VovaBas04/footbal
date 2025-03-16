@@ -72,7 +72,7 @@ module.exports = {
     ballGoalVisible: {
         exec(mgr, state) {
             state.command =
-                {n: "kick", v: `100 ${mgr.getAngle(state.action.goal)}`}
+                {n: "kick", v: `90 ${mgr.getAngle(state.action.goal)}`}
         }, next: "sendCommand",
     },
     ballGoalInvisible: {

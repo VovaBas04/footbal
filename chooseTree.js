@@ -6,7 +6,7 @@ module.exports = {
         print : false,
         next: 0,
         ids : [],
-        distances : [0, 0, 0],
+        distances : [0, 0],//, 0],
         value : 0,
         sequence: [{act: FL, fl: "b"}, {act: FL, fl: "gl"}, {act: KI, fl: "b", goal: "gr"}],
         commands: []
@@ -55,13 +55,14 @@ module.exports = {
                     DecideTree.state.action = state.action
                     trees.push(DecideTree)
                 } else {
-                    DecideTreeSupport.state.sequence = [{act: FL, fl: `^p.*Supercomputer.*${mainId}.*`}]
+                    // DecideTreeSupport.state.sequence = [{act: FL, fl: `^p.*Supercomputer.*${mainId}.*`}]
+                    DecideTreeSupport.state.sequence = [{act: FL, fl: `^p.*Supercomputer.*`}]
                     console.log(state.ids[i])
                     // console.log(DecideTreeSupport.state.action)
                     trees.push(DecideTreeSupport)
                 }
             }
-            state.distances = [0, 0, 0]
+            state.distances = [0, 0]
 
             return trees
         }

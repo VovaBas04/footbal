@@ -22,8 +22,13 @@ module.exports = {
     },
     isCatch : {
         condition: (mgr, state) => state.isCatch,
-        trueCond: "kickBall",
+        trueCond: "isVisibleGl",
         falseCond: "isMoveToFlag",
+    },
+    isVisibleGl: {
+        condition: (mgr, state) => mgr.getVisible("flb") || mgr.getVisible("gl") || mgr.getVisible("flt"),
+        trueCond: "kickBall",
+        falseCond: "rotate",
     },
     isMoveToFlag: {
         condition: (mgr, state) => state.action.move,
@@ -41,7 +46,7 @@ module.exports = {
         falseCond: "isSmallDistanceBall",
     },
     isSmallDistanceBall: {
-        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 20,
+        condition: (mgr, state) => mgr.getDistance(state.action.fl) < 20 && mgr.getDistance(state.action.fl) > 5,
         trueCond: "moveToBall",
         falseCond: "kickBall",
     },
