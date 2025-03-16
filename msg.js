@@ -61,5 +61,21 @@ module.exports = {
         }
 
         return result
+    },
+    
+    parseHearMsg(msg) {
+        // Убираем скобки и разбиваем на части
+        let parts = msg.slice(1, -1).split(' ');
+        
+        // Первый элемент - hear, пропускаем его
+        // Второй элемент - время
+        // Третий элемент - источник
+        // Остальные элементы - сообщение
+        return {
+            action: parts[0],
+            time: Number(parts[1]), // временной тик игры
+            source: parts[2], // источник сообщения
+            message: parts.slice(3).join(' ') // текст сообщения
+        }
     }
 }

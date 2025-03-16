@@ -15,6 +15,7 @@ class Controller {
      */
     constructor(print = false, dt = null) {
         this.sensorData = null;
+        this.numb = 0
         this.position = "r"; // По умолчанию ~ левая половина поля
         this.run = false; // Игра начата
         this.act = null; // Действия
@@ -60,7 +61,7 @@ class Controller {
 
         // Обработка различных типов сообщений
         if (data.cmd == "hear") {
-            this.processHearMsg(data);
+            this.processHearMsg(data.msg);
         } else if (data.cmd == "init") {
             this.processInitMsg(data.p);
         } else if (data.cmd == "see") {
@@ -76,8 +77,14 @@ class Controller {
      */
     processHearMsg(data) {
         this.run = true;
-        console.log([...this.sensorData, {action:"heard", value: data.msg}])
-        this.updateControllerCommand([...this.sensorData, {action:"heard", value: data.msg}])
+        let heardMessage = Msg.parseHearMsg(data);
+        console.log(data)
+        this.updateControllerCommand([...this.sensorData, {
+            action: heardMessage.action,
+            time: heardMessage.time,
+            source: heardMessage.source,
+            message: heardMessage.message
+        }]);
     }
 
     /**
@@ -173,11 +180,20 @@ class Controller {
      * Обновляет команду контроллера на основе видимых объектов
      */
     updateControllerCommand(sensorData) {
-        if(sensorData.find(elem => elem.action === "heard")) console.log(sensorData)
+        // if(sensorData.find(elem => 'action' in elem)) console.log(sensorData)
         if (this.run) {
             if(this.dt){
                 this.act = getAction(this.dt, sensorData)
             }
+            // if(this.numb === 0){
+            //     this.act = {n: "say", v: "go"};
+            //     this.numb = 1;
+            //     console.log(this.numb)
+            // }
+            // else {
+            //     this.act = null;
+            // }
+            return;
         }
         this.act = null;
     }
