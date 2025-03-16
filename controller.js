@@ -99,10 +99,10 @@ class Controller {
      */
     processSeeMsg(msg) {
         try {
-            let distances = Msg.parseSeeMsg(msg);
-            this.updateAgentPosition(distances);
-            this.updateEnemyPosition(distances);
-            this.updateControllerCommand(distances);
+            let sensorData = Msg.parseSeeMsg(msg);
+            this.updateAgentPosition(sensorData);
+            this.updateEnemyPosition(sensorData);
+            this.updateControllerCommand(sensorData);
         } catch (err) {
             // console.error("undefined coors");
         }
@@ -110,10 +110,10 @@ class Controller {
 
     /**
      * Обновляет позицию агента на основе видимых флагов
-     * @param {Array} distances - массив с информацией о видимых объектах
+     * @param {Array} sensorData - массив с информацией о видимых объектах
      */
-    updateAgentPosition(distances) {
-        let flagsForDistance = PositionUtils.chooseFlags(distances);
+    updateAgentPosition(sensorData) {
+        let flagsForDistance = PositionUtils.chooseFlags(sensorData);
         let firstFlag = flagsForDistance.firstFlag.key;
         let secondFlag = flagsForDistance.secondFlag.key;
         let thirdFlag = flagsForDistance.thirdFlag.key;
@@ -137,10 +137,10 @@ class Controller {
 
     /**
      * Обновляет позицию противника на основе видимых флагов
-     * @param {Array} distances - массив с информацией о видимых объектах
+     * @param {Array} sensorData - массив с информацией о видимых объектах
      */
-    updateEnemyPosition(distances) {
-        let flagsForEnemy = PositionUtils.chooseFlagsForEnemy(distances);
+    updateEnemyPosition(sensorData) {
+        let flagsForEnemy = PositionUtils.chooseFlagsForEnemy(sensorData);
         if (flagsForEnemy && this.print) {
             let secondFlag = flagsForEnemy.secondFlag.key;
             let thirdFlag = flagsForEnemy.thirdFlag.key;
@@ -177,10 +177,10 @@ class Controller {
 
     /**
      * Обновляет команду контроллера на основе видимых объектов
-     * @param {Array} distances - массив с информацией о видимых объектах
+     * @param {Array} sensorData - массив с информацией о видимых объектах
      */
-    updateControllerCommand(distances) {
-        let controlCommand = this.update(distances);
+    updateControllerCommand(sensorData) {
+        let controlCommand = this.update(sensorData);
         if (controlCommand) {
             this.act = controlCommand;
         }
