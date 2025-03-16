@@ -6,8 +6,6 @@ let teamName = "Supercomputer"; // Имя команды
 let agent0 = new Agent(true);
 let agent = new Agent(true)// Создание экземпляра агента
 
-require('./socket')(agent0, teamName, VERSION);
-require('./socket')(agent, "ABOBA", VERSION, true);
 
 // Инициализируем контроллер с последовательностью действий:
 // Движение к флагам "frb", "gl", "fc", затем удар по мячу (цель – ворота "gr")
@@ -17,6 +15,9 @@ agent.controller = new Controller([
     {act: "flag", fl: "fcb"},
     {act: "kick", fl: "b", goal: "gr"}
 ], agent);
+
+require('./socket')(agent0, teamName, VERSION);
+require('./socket')(agent, "ABOBA", VERSION, true);
 
 const coors = "-20 0";
 
