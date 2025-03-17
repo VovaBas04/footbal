@@ -100,27 +100,26 @@ function chooseFlags(distancesOriginal) {
  * @returns {Object|boolean} - объект с тремя выбранными флагами или false, если не удалось выбрать
  */
 function chooseFlagsForEnemy(distancesOriginal) {
-    let distances = [...distancesOriginal];
-    let firstFlag = "";
-    for (let i = 0; i < distances.length; i++) {
-        if (Flags[distances[i].key] === undefined) {
-            if (distances[i].key.includes("\"") || distances[i].key === "p") {
-                firstFlag = distances[i];
-            }
-            distances.splice(i, 1);
-            i--;
-        }
-    }
+     let players = []
+     let distances = [...distancesOriginal]
+     let firstFlag = false
+     for (let i = 0; i < distances.length; i++) {
+         if (Flags[distances[i].key] === undefined) {
+             if (distances[i].key.includes("\"") || distances[i].key === "p" || distances[i].key === "b") {
+                 players.push(distances[i])
+                 firstFlag = true
+             }
+             distances.splice(i, 1)
+             i--
+         }
+     }
 
-    if (firstFlag === "") {
-        return false;
-    }
-    return {
-        firstFlag: firstFlag, 
-        secondFlag: distances[0], 
-        thirdFlag: distances[1 % distances.length]
-    };
-}
+     if (!firstFlag) {
+         return false
+     }
+
+     return {players : players, secondFlag : distances[0], thirdFlag : distances[1 % distances.length]}
+ }
 
 module.exports = {
     calculatePosition,
