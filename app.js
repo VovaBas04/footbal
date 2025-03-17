@@ -1,7 +1,4 @@
 const Agent = require('./agent');
-let mainTree = require('./mainTree.js');
-let supportTree = require('./supportTree.js');
-let goalieTree = require('./goalie.js');
 const Controller = require('./controller'); // Импорт контроллера
 const VERSION = 7; // Версия сервера
 
@@ -23,14 +20,14 @@ require('./socket')(agent, teamName, VERSION);
 
 // Инициализируем контроллер с последовательностью действий:
 // Движение к флагам "frb", "gl", "fc", затем удар по мячу (цель – ворота "gr")
-// agent.controller = new Controller([
-//     {act: "flag", fl: "gl"},
-//     {act: "flag", fl: "flt"},
-//     {act: "flag", fl: "fcb"},
-//     {act: "kick", fl: "b", goal: "gr"}
-// ], agent);
+agent.controller = new Controller([
+    {act: "flag", fl: "gl"},
+    {act: "flag", fl: "flt"},
+    {act: "flag", fl: "fcb"},
+    {act: "kick", fl: "b", goal: "gr"}
+], agent);
 
-const coors = "-20 20";
+const coors = "-20 10";
 const coors2 = "-30 25";
 const coors3 = "-30 0";
 
@@ -40,8 +37,8 @@ setTimeout(function () {
     // agent3.socketSend("move", coors3);
 }, 1000);
 setTimeout(function () {
-    // agent2.socketSend("turn", "60");
-}, 2000);
+    agent.socketSend("turn", "19");
+}, 1000);
 
 process.on('SIGINT', () => {
     agent.socketSend("bye", "");

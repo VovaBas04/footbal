@@ -25,7 +25,9 @@ class Controller {
         this.enemy_coors = null; // Координаты противника
         this.print = print; // Флаг для вывода отладочной информации
         this.id = null; // id игрока
-        this.dt = dt
+        this.authomat = require('./manager_automation.js')
+        this.inputDto = require('./inputDto.js')
+        this.ta = require('./automaton.js')
     }
 
     /**
@@ -103,10 +105,11 @@ class Controller {
             this.sensorData = Msg.parseSeeMsg(msg);
             this.updateAgentPosition();
             this.updateEnemyPosition();
-            this.updateControllerCommand();
         } catch (err) {
+            console.log("Моя ошибка", err)
             // console.error("undefined coors");
         }
+        this.updateControllerCommand();
     }
 
     /**
@@ -134,7 +137,10 @@ class Controller {
         if (this.coords === undefined) {
             this.coords = oldCoords;
         }
+
+        this.inputDto.pos = this.coords
     }
+
 
     /**
      * Обновляет позицию противника на основе видимых флагов
@@ -142,37 +148,50 @@ class Controller {
      */
     updateEnemyPosition() {
         let flagsForEnemy = PositionUtils.chooseFlagsForEnemy(this.sensorData);
-        if (flagsForEnemy && this.print) {
+        if (flagsForEnemy) {
             let secondFlag = flagsForEnemy.secondFlag.key;
             let thirdFlag = flagsForEnemy.thirdFlag.key;
-            let da1 = Math.sqrt(
-                Math.pow(flagsForEnemy.secondFlag.distance, 2) +
-                Math.pow(flagsForEnemy.firstFlag.distance, 2) -
-                2 * flagsForEnemy.firstFlag.distance * flagsForEnemy.secondFlag.distance *
-                Math.cos(Math.PI / 180 * Math.abs(flagsForEnemy.secondFlag.alpha - flagsForEnemy.firstFlag.alpha))
-            );
-            let da2 = Math.sqrt(
-                Math.pow(flagsForEnemy.thirdFlag.distance, 2) +
-                Math.pow(flagsForEnemy.firstFlag.distance, 2) -
-                2 * flagsForEnemy.firstFlag.distance * flagsForEnemy.thirdFlag.distance *
-                Math.cos(Math.PI / 180 * Math.abs(flagsForEnemy.thirdFlag.alpha - flagsForEnemy.firstFlag.alpha))
-            );
-
-            let save = this.enemy_coors;
-            this.enemy_coors = PositionUtils.calculatePosition(
-                this.coords.x, this.coords.y,
-                Flags[secondFlag].x, Flags[secondFlag].y,
-                Flags[thirdFlag].x, Flags[thirdFlag].y,
-                flagsForEnemy.firstFlag.distance,
-                da1,
-                da2,
-                false,
-                save
-            );
-
-            if (this.enemy_coors === undefined) {
-                this.enemy_coors = save;
+            let enemy_coords = []
+            for (let el of flagsForEnemy.players) {
+                flagsForEnemy.firstFlag = el
+                let da1 = Math.sqrt(Math.pow(flagsForEnemy.secondFlag.distance, 2) +
+                    Math.pow(flagsForEnemy.firstFlag.distance, 2) -
+                    2 * flagsForEnemy.firstFlag.distance * flagsForEnemy.secondFlag.distance *
+                    Math.cos(Math.PI / 180 * Math.abs(flagsForEnemy.secondFlag.alpha - flagsForEnemy.firstFlag.alpha)));
+                let da2 = Math.sqrt(Math.pow(flagsForEnemy.thirdFlag.distance, 2) +
+                    Math.pow(flagsForEnemy.firstFlag.distance, 2) -
+                    2 * flagsForEnemy.firstFlag.distance * flagsForEnemy.thirdFlag.distance *
+                    Math.cos(Math.PI / 180 * Math.abs(flagsForEnemy.thirdFlag.alpha - flagsForEnemy.firstFlag.alpha)));
+                let coords = PositionUtils.calculatePosition(this.coords.x, this.coords.y,
+                    Flags[secondFlag].x, Flags[secondFlag].y,
+                    Flags[thirdFlag].x, Flags[thirdFlag].y,
+                    flagsForEnemy.firstFlag.distance,
+                    da1,
+                    da2, false);
+                if (coords) {
+                    let ball = null
+                    if (flagsForEnemy.firstFlag.key === "b") {
+                        ball = {
+                            x: coords.x,
+                            y: coords.y,
+                            dist: flagsForEnemy.firstFlag.distance,
+                            angle: flagsForEnemy.firstFlag.alpha,
+                            f: flagsForEnemy.firstFlag.key
+                        }
+                        this.inputDto.ballPrev = this.inputDto.ball
+                        this.inputDto.ball = ball
+                    } else {
+                        enemy_coords.push({
+                            x: coords.x,
+                            y: coords.y,
+                            dist: flagsForEnemy.firstFlag.distance,
+                            angle: flagsForEnemy.firstFlag.alpha,
+                            f: flagsForEnemy.firstFlag.key
+                        })
+                    }
+                }
             }
+            this.inputDto.team = enemy_coords
         }
     }
 
@@ -194,18 +213,7 @@ class Controller {
      */
     update() {
         if (this.run) {
-            if(this.dt){
-                return getAction(this.dt, this.sensorData)
-            } else {
-                let currentAction = this.actions[this.currentActionIndex];
-                if (!currentAction) return null;
-
-                if (currentAction.act === "flag") {
-                    return this.handleFlagAction(currentAction);
-                } else if (currentAction.act === "kick") {
-                    return this.handleKickAction(currentAction);
-                }
-            }
+            return this.authomat.getAction(this.inputDto, this.ta, "Supercomputer", "l")
         }
         return null
     }

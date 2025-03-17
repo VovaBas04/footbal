@@ -27,12 +27,17 @@ const Manager = {
             let cond = ta.state.synch.substr(0, ta.state.synch.length-1)
             return ta.actions[cond](taken, ta.state)
         }
+        console.log(ta.current)
         if(ta.state.next) { // Переход на следующее действие
+            console.log('1', this.lastTime)
             if(ta.nodes[ta.current]) return this.nextState(taken, ta)
+            console.log('2')
             if(ta.edges[ta.current]) return this.nextEdge(taken, ta)
         } // Переход не нужен
+        console.log("Не нужен")
         if(ta.nodes[ta.current]) return this.executeState(taken, ta)
         if(ta.edges[ta.current]) return this.executeEdge(taken, ta)
+        console.log("error")
         throw `Unexpected state: ${ta.current}`
     },
     nextState(taken, ta) { // Находимся в узле, нужен переход
@@ -42,6 +47,7 @@ const Manager = {
             let edge = ta.edges[edgeName]
             if(!edge) throw `Unexpected edge: ${node.n}_${name}`
             for(let e of edge) { // Проверяем все ребра
+                console.log(e.guard, edgeName)
                 if(e.guard) { // Проверяем ограничения
                     let guard = true
                     for(let g of e.guard)
@@ -128,18 +134,24 @@ const Manager = {
             return this.execute(taken, ta) // Рекурсивный вызов
         }
     },
-    guard(taken, ta, g) { // Проверка условий
-        function taStateObject(o, ta) { /* Получение значения таймера/переменной (g.l или g.r) */
-            if(typeof o == "object") {
-                return o.v ? ta.state.variables[o.v] : ta.state.timers[o.t];
-            }
+    guard(taken, ta, g) {
+        // Проверка условий
+        const taStateObject = (o, ta) => {
+            // Получение значения таймера/переменной (g.l или g.r)
+            if (typeof o == 'object') return o.v ? ta.state.variables[o.v] : ta.state.timers[o.t];
             else return o;
-        }
-        function lt(ta, l, r) { // Проверка неравенства
-            return taStateObject(l, ta) < taStateObject(r, ta);
-        }
-        // TODO Проверка условий
-        // throw `Unexpected guard: ${JSON.stringify(g)}`;
+        };
+        const op = {
+            lt: (ta, l, r) => taStateObject(l, ta) < taStateObject(r, ta),
+            lte: (ta, l, r) => taStateObject(l, ta) <= taStateObject(r, ta),
+            gt: (ta, l, r) => taStateObject(l, ta) > taStateObject(r, ta),
+            gte: (ta, l, r) => taStateObject(l, ta) <= taStateObject(r, ta),
+            e: (ta, l, r) => taStateObject(l, ta) === taStateObject(r, ta),
+            ne: (ta, l, r) => taStateObject(l, ta) !== taStateObject(r, ta),
+        };
+        console.log(ta.state.variables)
+        if (op[g.s]) return op[g.s](ta, g.l, g.r);
+        else throw `Unexpected guard: ${JSON.stringify(g)}`;
     },
 }
 

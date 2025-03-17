@@ -12,6 +12,7 @@ const TA = {
         close: { n: "close", e: ["catch"] },
         catch: { n: "catch", e: ["kick"] },
         kick: { n: "kick", e: ["start"] },
+        far : {n: "far", e: ["start"] },
         near: { n: "near", e: ["intercept", "start"] },
         intercept: { n: "intercept", e: ["start"] },
     },
