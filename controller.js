@@ -78,13 +78,13 @@ class Controller {
     processHearMsg(data) {
         this.run = true;
         let heardMessage = Msg.parseHearMsg(data);
-        console.log(data)
-        this.updateControllerCommand([...this.sensorData, {
+        // console.log(data)
+        this.updateControllerCommand({
             action: heardMessage.action,
             time: heardMessage.time,
             source: heardMessage.source,
             message: heardMessage.message
-        }]);
+        }, "hear");
     }
 
     /**
@@ -105,7 +105,7 @@ class Controller {
             this.sensorData = Msg.parseSeeMsg(msg);
             this.updateAgentPosition();
             this.updateEnemyPosition();
-            this.updateControllerCommand(this.sensorData);
+            this.updateControllerCommand(this.sensorData, "see");
         } catch (err) {
             // console.error("undefined coors");
         }
@@ -179,11 +179,13 @@ class Controller {
     /**
      * Обновляет команду контроллера на основе видимых объектов
      */
-    updateControllerCommand(sensorData) {
+    updateControllerCommand(sensorData, cmd) {
         // if(sensorData.find(elem => 'action' in elem)) console.log(sensorData)
         if (this.run) {
             if(this.dt){
-                this.act = getAction(this.dt, sensorData)
+                this.act = getAction(this.dt, sensorData, cmd, this.print);
+                if (this.print) console.log("\n--------------------------\n");
+                // console.log(this.act)
             }
             // if(this.numb === 0){
             //     this.act = {n: "say", v: "go"};

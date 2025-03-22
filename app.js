@@ -3,6 +3,8 @@ const Controller = require('./controller'); // Импорт контроллер
 const VERSION = 7; // Версия сервера
 
 const goalieTree = require('./trees/goalie.js')
+const scorerTree = require('./trees/scorer.js')
+const passerTree = require('./trees/passer.js')
 
 let teamName = "Supercomputer"; // Имя команды
 let enemyName = "Sinep";
@@ -11,10 +13,9 @@ let scorer = new Agent();
 let enemy1  = new Agent();
 let enemy2 = new Agent();
 
-
 // Инициализируем контроллер с последовательностью действий
-passer.controller = new Controller();
-scorer.controller = new Controller();
+passer.controller = new Controller(false, passerTree);
+scorer.controller = new Controller(true, scorerTree);
 enemy1.controller = new Controller();
 enemy2.controller = new Controller();
 
@@ -22,7 +23,6 @@ require('./socket')(passer, teamName, VERSION);
 require('./socket')(scorer, teamName, VERSION);
 require('./socket')(enemy1, enemyName, VERSION);
 require('./socket')(enemy2, enemyName, VERSION);
-
 
 const passerCoors = "-10 10";
 const scorerCoors = "-10 -10";
