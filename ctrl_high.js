@@ -11,10 +11,6 @@ const CTRL_HIGH = {
 		this.last = "previous";
 	},
 	immidiateReaction(input){
-		if (input.canCatch && this.last != "catch"){
-			this.last = "catch";
-			return {n: "catch", v: input.state.ball.angle};
-		}
 		if (input.canKick){
 			this.last = "kick";
 			input.wait = 10;

@@ -59,14 +59,8 @@ class Agent {
     }
 
     analyzeEnv(msg, cmd, p) {
-        //this.act = {n: "dash", v: -30};
-        //return;
-
-
-
-
         if (cmd == "hear"){
-            console.log(p);
+            // console.log(p);
             if (p[2].includes("kick") && p[2] != "before_kick_off"){
                 if (!p[2].includes(this.infoAnalyzer.side)){
                     this.run = false;
@@ -81,7 +75,6 @@ class Agent {
                 this.infoAnalyzer.action = "return";
                 this.infoAnalyzer.turnData = "ft0";
                 return;
-                //'move', `${player.start_x} ${player.start_y}`
             }
 
             if (p[2].includes("play")){
@@ -95,34 +88,25 @@ class Agent {
         }
 
         if (cmd === "sense_body"){
-            //console.log(p);
-            //console.log("Direction!!!!", p[3]['p'][1], p[0]);
             this.direction = p[3]['p'][1];
         }  
 
         if (cmd === "see"){
             if (this.next_act){
                 this.act = this.next_act;
-                //console.log("ACT: ", this.act, p[0]);
                 this.next_act = null;
                 return;
             }
 
-            //console.log(this.infoAnalyzer.state['ball']);
             this.infoAnalyzer.state['time'] = p[0];
             this.infoAnalyzer.set(p);
 
             if (this.controllers){
                 this.act = this.controllers[0].execute(this.infoAnalyzer, this.controllers, this.bottom, this.top, this.direction, this.center);
-                //console.log(this.act);
                 if (Array.isArray(this.act)){
                     this.next_act = this.act[1];
                     this.act = this.act[0];
-                    
-                    //console.log("act", this.act);
-                    //console.log("next_act", this.next_act);
-                } 
-                //console.log("ACT: ", this.act, p[0]);
+                }
             }
 
             // Вызов автомата
@@ -139,7 +123,6 @@ class Agent {
     }
 
     sendCmd() {
-        //console.log(this.act);
         if (this.run) {
             // Игра начата
             if (this.act) {

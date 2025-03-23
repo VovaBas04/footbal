@@ -4,12 +4,8 @@ const CTRL_HIGH = {
 	execute(infoAnalyzer, controllers, bottom, top, direction, center){
 		let act;
 		if (infoAnalyzer.state.ball.dist <= 0.5){
-			//if (!utils.seeDir(infoAnalyzer)){
-			//	return {n: "kick", v: "10 45"};
-			//}
 			if (infoAnalyzer.kick){
 				act = utils.pass(infoAnalyzer);
-				//console.log("ACT: ", act);
 				if (act){
 					return act;
 				} else {
@@ -48,7 +44,6 @@ const CTRL_HIGH = {
 			//...........
 
 			act = utils.pass(infoAnalyzer);
-			//console.log("ACT: ", act);
 			if (act){
 				return act;
 			} else {
@@ -56,7 +51,6 @@ const CTRL_HIGH = {
 					return {n: "kick", v: "10 45"};
 				}
 				act = utils.forward(infoAnalyzer);
-				//console.log("second act", act);
 				if (!act){
 					return {n: "kick", v: "10 45"}
 				}
@@ -67,12 +61,6 @@ const CTRL_HIGH = {
 
 
 		if (infoAnalyzer.state.ball.dist >= 5){
-			//console.log("Ball far. returning in zone");
-			//act = utils.avoidCollision(infoAnalyzer);
-			//if (act){
-				//console.log("AVOIDED!");
-			//	return act;
-			//}
 			for (const player of infoAnalyzer.state.myTeam){
 				if (player.dist < 10){
 					return null;
@@ -82,13 +70,10 @@ const CTRL_HIGH = {
 			if (act){
 				return act;
 			}
-			//console.log("in zone. Go 2 ball");
 			let x = infoAnalyzer.state.pos.x;
 			let y = infoAnalyzer.state.pos.y;
 			return utils.go2ball(x, y, bottom, top, center, infoAnalyzer.state.ball.angle, direction, infoAnalyzer);			
 		}
-
-		//console.log("take ball");
 
 		let teamTake = utils.teamTaken(infoAnalyzer);
 		if (!teamTake){

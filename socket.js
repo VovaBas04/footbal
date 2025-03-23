@@ -13,7 +13,6 @@ module.exports = (agent, teamName, version, goalie) => {
         socket.sendMsg = (msg) => {
             return new Promise((resolve, reject) => {
                 socket.send(Buffer.from(msg), 6000, 'localhost', (err, bytes) => {
-                    //console.log(msg);
                     if (err) reject(err);
                     resolve(bytes);
                 });

@@ -7,12 +7,10 @@ const CTRL_LOW = {
 		}
 		const next = controllers[0];
 		if (!infoAnalyzer.state.ball){
-			//console.log("return in Zone");
 			let act = utils.returnInZone(infoAnalyzer.state.pos.y, bottom, top, direction, infoAnalyzer);
 			if (act){
 				return act;
 			}
-			//console.log("in Zone. Finding ball");
 			return utils.turn(1, 90);
 		}
 		if (next){

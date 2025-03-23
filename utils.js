@@ -42,22 +42,21 @@ module.exports = {
         let dist = 10;
         let pos = infoAnalyzer.state.pos;
         destination = {'x': pos.x + sign*dist, 'y': pos.y};
-        let can = this.canPass(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 5);
-        //console.log("CAN: "< can);
+        let can = this.canPass(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 3);
         if (can){
-            return {n: "kick", v: "25 0"};
+            return {n: "kick", v: "20 0"};
         }
 
         destination = {'x': pos.x + sign * Math.sqrt(3) / 2 * dist, 'y': pos.y + sign * dist / 2};
-        can = canPass(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 5);
+        can = canPass(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 3);
         if (can){
-            return {n: "kick", v: "25 -30"};
+            return {n: "kick", v: "20 -10"};
         }
 
         destination = {'x': pos.x + sign * Math.sqrt(3) / 2 * dist, 'y': pos.y + -sign * dist / 2};
-        can = canPass(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 5);
+        can = canPass(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 3);
         if (can){
-            return {n: "kick", v: "25 30"};
+            return {n: "kick", v: "20 10"};
         }
         return null;        
     },
@@ -103,8 +102,6 @@ module.exports = {
         return true;
     },
     pass(infoAnalyzer){
-        let side = infoAnalyzer.side;
-        let sign = (side == 'l') ? 1 : -1;
         let dir = this.seeDir(infoAnalyzer);
         if (!infoAnalyzer.state.pos){
             return;
@@ -113,15 +110,6 @@ module.exports = {
             if (!player.x){
                 continue;
             }
-            /*
-            if (player.x > infoAnalyzer.state.pos.x && side == 'r'){
-                continue;
-            }
-
-            if (player.x < infoAnalyzer.state.pos.x && side == 'l'){
-                continue;
-            }
-            */
             let num = Math.random();
             let stake;
             if (dir){
@@ -143,11 +131,10 @@ module.exports = {
             if (!can){
                 continue;
             }
-            console.log(infoAnalyzer.state.pos.x, player.x);
+            // console.log(infoAnalyzer.state.pos.x, player.x);
             return {n: "kick", v: 2 * player.dist + 10 + " " + player.angle};
         }
         return null;
-        //return {n: "kick", v: "10 45"};
     },
     turn(side, angle){
         return {n: 'turn', v: side * angle};
@@ -173,17 +160,6 @@ module.exports = {
         }
         return false;
     },
-    avoidCollision(infoAnalyzer){
-        let avoidance = null;
-        for (const name of ['myTeam', 'enemyTeam', 'players']){
-            for (const player of infoAnalyzer.state[name]){
-                if (player.dist < 0.5){
-                    return [{n: 'turn', v: -player.angle}, {n: 'dash', v: 60}];
-                }
-            }
-        }
-        return null;
-    },
     takeBall(dist, angle){
         if (Math.abs(angle) > 7){
             return {n: "turn", v: angle};
@@ -194,7 +170,6 @@ module.exports = {
         return {n: "dash", v: 100};
     },
     returnInZone(y, bottom, top, direction, infoAnalyzer){
-        //console.log(infoAnalyzer.state.all_flags, y, bottom, top);
         if (y <= bottom && y >= top){
             return null;
         }
@@ -209,35 +184,6 @@ module.exports = {
             }
         }
         return {n: "turn", v: 45};
-        /*
-        console.log(y, bottom, top, direction);
-        if (y <= bottom && y >= top){
-            return null;
-        }
-        let need_angle = 0;
-        if (y < top){
-            need_angle = -90;
-        } else {
-            need_angle = 90;
-        }
-        console.log("need angle: ", need_angle);
-        let result = need_angle - direction;
-        if (result > 180){
-            result = -(360 - result);
-        } else if (result < -180){
-            result = 360 + result;
-        }
-        if (Math.abs(result) < 30){
-            return {n: "dash", v: 80};
-        }
-        return [{n: "turn", v: -result}, {n: "dash", v: 75}];
-        */
-    },
-    inZone(y, bottom, top, direction){
-        if (y <= bottom && y >= top){
-            return true;
-        }
-        return false;
     },
     getSpeed(x, direction, center, infoAnalyzer){
         return 100;
@@ -253,20 +199,7 @@ module.exports = {
         return 40;
     },
     go2ball(x, y, bottom, top, center, ball_angle, direction, infoAnalyzer){
-        //let zone = this.inZone(y, bottom, top, direction);
         let speed = this.getSpeed(x, direction, center, infoAnalyzer);
-        /*
-        if (!zone){ // возможно можно опустить
-            let turned;
-            if (Math.abs(direction) > 90){
-                let need_angle = Math.sign(direction) * 180;
-                turned = need_angle - direction;
-                return {n: "turn", v: turned};
-            } else {
-                return [{n: "turn", v: direction}, {n: "dash", v: speed}]
-            }
-        }
-        */
         if (Math.abs(ball_angle) > 7){
             return {n: "turn", v: ball_angle};
         }
@@ -274,16 +207,6 @@ module.exports = {
     },
     squares_diff(x1, x2){
         return x1 * x1 - x2 * x2
-    },
-    find_parameter(param, data){
-        for (const obj of data){
-            if (typeof obj === 'number'){
-                continue;
-            }
-            if (obj['cmd'] === param){
-                return obj['p'];
-            }
-        }        
     },
     get_unit_vector(direction, directionOfSpeed){
         if (directionOfSpeed === null){
@@ -293,9 +216,7 @@ module.exports = {
         angle = angle * Math.PI / 180;
         return [Math.cos(angle), -Math.sin(angle)];
     },
-    // fix: выбирать флаги так, чтобы alpha получались разными
     solveby3(d1, d2, d3, x1, y1, x2, y2, x3, y3) {
-        //console.log(d1, d2, d3, x1, y1, x2, y2, x3, y3);
         if ((y1 - y2) === (y1 - y3)){
             [d1, d2] = [d2, d1];
             [x1, x2] = [x2, x1];
@@ -308,7 +229,6 @@ module.exports = {
         let beta2 = (y3 * y3 - y1 * y1 + x3 * x3 - x1 * x1 + d1 * d1 - d3 * d3) / (2 * (x3 - x1));
         let delta_beta = beta1 - beta2;
         let delta_alpha = alpha2 - alpha1;
-        //console.log("DElta_alpha: ", delta_alpha);
         let X = alpha1 * (delta_beta / delta_alpha) + beta1;
         let Y = delta_beta / delta_alpha;
 
@@ -384,7 +304,6 @@ module.exports = {
         } else {
         	result = in_field[0];
         }
-        //console.log("possible: ", possible_poses);
         return result;
     },
 
@@ -399,89 +318,10 @@ module.exports = {
         
         return this.solveby2(da, d_a1, x, y, x1, y1, eo, null, 57.5, 39);
     },
-
-    find_different_x_y(flags, flag){
-        for (const f of flags){
-            if ((f[0] !== flag[0]) && (f[1] !== flag[1])){
-                return f;
-            }
-        }
-        return null;
-    },
     checkSame3Y(flags) {
         return flags[0][1] === flags[1][1]
             && flags[2][1] === flags[1][1]
             && flags[0][1] === flags[2][1];
-    },
-
-
-    see_object(obj_name, see_data){
-        /*
-        Если объект не виден, возвращает null.
-        Если объект виден, возвращает пространственные характеристики
-        в формате [Distance, Direction, ...]
-        */
-        for (const obj of see_data){
-            if (typeof obj === 'number'){
-                continue;
-            }
-            let cur_obj_name = obj['cmd']['p'].join('');
-            if (cur_obj_name === obj_name || (obj_name === 'p' && cur_obj_name.includes(obj_name)) && !cur_obj_name.includes("f") && !cur_obj_name.includes("B")){
-                return obj['p'];
-            }
-        }
-        return null;
-    },
-
-
-    get_flags_and_objects_2(data){
-        let flags = [];
-        let objects = [];
-        let sortedFlags = {};
-        let cur;
-        let res = [];
-        for (const obj of data){
-            if (typeof obj === 'number'){
-                continue;
-            }
-            obj_name = obj['cmd']['p'].join('');
-
-            if (obj['p'].length === 1){
-                continue;
-            }
-
-            if (!Flags[obj_name] && obj_name == "b"){
-                objects.push([obj['p'][0], obj['p'][1]]);
-                continue;
-            }
-
-            cur = [Flags[obj_name]['x'], Flags[obj_name]['y'], obj['p'][0], obj['p'][1]];
-            if (res.length < 3){
-                if (!sortedFlags[cur[0]]) {
-                    sortedFlags[cur[0]] = [];
-                    sortedFlags[cur[0]].push(cur);
-                } else {
-                    sortedFlags[cur[0]].push(cur);
-                }
-
-                if (Object.keys(sortedFlags).length === 3) {
-                    for (let [key, value] of Object.entries(sortedFlags)) {
-                        res.push(value[0]);
-                        if (res.length === 3) {
-                            break;
-                        }
-                    }
-                }
-            }
-            if (flags.length < 2){
-                flags.push(cur);
-            }
-        }
-        if (res.length === 3 && !checkSame3Y(res)){
-            return [res, objects];
-        } else {
-            return [flags, objects]; 
-        }
     },
 
 }
