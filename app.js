@@ -15,7 +15,7 @@ let enemy2 = new Agent();
 
 // Инициализируем контроллер с последовательностью действий
 passer.controller = new Controller(false, passerTree);
-scorer.controller = new Controller(true, scorerTree);
+scorer.controller = new Controller(false, scorerTree);
 enemy1.controller = new Controller();
 enemy2.controller = new Controller();
 
