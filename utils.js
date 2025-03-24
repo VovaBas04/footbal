@@ -34,27 +34,27 @@ module.exports = {
         }
 
     },
-    forward(infoAnalyzer){
+    scorer(infoAnalyzer){
         if (!infoAnalyzer.state.pos){
             return null;
         }
-        let sign = (infoAnalyzer.side == 'l') ? 1 : -1;
+        let sign = (infoAnalyzer.side == 'l') ? -1 : 1;
         let dist = 10;
         let pos = infoAnalyzer.state.pos;
         destination = {'x': pos.x + sign*dist, 'y': pos.y};
-        let can = this.canPass(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 3);
+        let can = this.hasSpace(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 3);
         if (can){
             return {n: "kick", v: "20 0"};
         }
 
         destination = {'x': pos.x + sign * Math.sqrt(3) / 2 * dist, 'y': pos.y + sign * dist / 2};
-        can = canPass(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 3);
+        can = hasSpace(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 3);
         if (can){
             return {n: "kick", v: "20 -10"};
         }
 
         destination = {'x': pos.x + sign * Math.sqrt(3) / 2 * dist, 'y': pos.y + -sign * dist / 2};
-        can = canPass(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 3);
+        can = hasSpace(pos, destination, infoAnalyzer.state.enemyTeam.concat(infoAnalyzer.state.players), 3);
         if (can){
             return {n: "kick", v: "20 10"};
         }
@@ -79,8 +79,8 @@ module.exports = {
         }
         return false;
     },
-    canPass(pos, player, enemies, danger){
-        if (Math.abs(player.x) > 46){
+    hasSpace(pos, player, enemies, danger){
+        if (Math.abs(player.x) > 40){
             return false;
         }
         let poses = [];
@@ -123,11 +123,11 @@ module.exports = {
             }
 
 
-            let can = this.canPass(infoAnalyzer.state.pos, player, infoAnalyzer.state['enemyTeam'], 5);
+            let can = this.hasSpace(infoAnalyzer.state.pos, player, infoAnalyzer.state['enemyTeam'], 5);
             if (!can){
                 continue;
             }
-            can = this.canPass(infoAnalyzer.state.pos, player, infoAnalyzer.state['players'], 5);
+            can = this.hasSpace(infoAnalyzer.state.pos, player, infoAnalyzer.state['players'], 5);
             if (!can){
                 continue;
             }

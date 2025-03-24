@@ -50,7 +50,7 @@ const CTRL_HIGH = {
 				if (!utils.seeDir(infoAnalyzer)){
 					return {n: "kick", v: "10 45"};
 				}
-				act = utils.forward(infoAnalyzer);
+				act = utils.scorer(infoAnalyzer);
 				if (!act){
 					return {n: "kick", v: "10 45"}
 				}
