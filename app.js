@@ -5,9 +5,9 @@ const low_ctrl = require("./field_player_low");
 const high_ctrl = require("./field_player_high");
 const VERSION = 7;
 
-const goalie_low = require("./ctrl_low");
-const goalie_middle = require("./ctrl_middle");
-const goalie_high = require("./ctrl_high");
+const goalie_low = require("./goalie_ctrl_low");
+const goalie_middle = require("./goalie_ctrl_middle");
+const goalie_high = require("./goalie_ctrl_high");
 
 let teamName = "Supercomputer"
 let enemyName = "Sinep"

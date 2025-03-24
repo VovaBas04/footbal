@@ -1,4 +1,4 @@
-const CTRL_MIDDLE = {
+const Goalie_ctrl_middle = {
 	action: "return",
 	turnData: "ft0",
 	execute(input, controllers){
@@ -62,4 +62,4 @@ const CTRL_MIDDLE = {
 }
 
 
-module.exports = CTRL_MIDDLE;
+module.exports = Goalie_ctrl_middle;

@@ -1,4 +1,4 @@
-const CTRL_LOW = {
+const Goalie_ctrl_low = {
 	execute(infoAnalyzer, controllers){
 		const next = controllers[0];
 		infoAnalyzer.canKick = infoAnalyzer.state.ball && infoAnalyzer.state.ball.dist < 1;
@@ -9,4 +9,4 @@ const CTRL_LOW = {
 	}
 }
 
-module.exports = CTRL_LOW;
+module.exports = Goalie_ctrl_low;

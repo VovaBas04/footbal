@@ -1,4 +1,4 @@
-const CTRL_HIGH = {
+const Goalie_ctrl_high = {
 	wait: 0,
 	execute(input){
 		input.wait--;
@@ -38,4 +38,4 @@ const CTRL_HIGH = {
 	}
 }
 
-module.exports = CTRL_HIGH;
+module.exports = Goalie_ctrl_high;
