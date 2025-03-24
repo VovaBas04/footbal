@@ -69,10 +69,10 @@ const DT = {
     },
     isMoved: {
         condition: (mgr, state, p, cmd) => state.previous_play_on,
-        trueCond: "move2start", 
+        trueCond: "moveToStart",
         falseCond: "sendCommand",
     },
-    move2start: {
+    moveToStart: {
         exec(mgr, state, p, cmd){
             state.command = {n: "move", v: state.start_coords[0] + " " + state.start_coords[1]};
             state.next = 0;

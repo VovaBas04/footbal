@@ -31,10 +31,10 @@ const DT = {
     },
     messageSay: {
         condition: (mgr, state, p, cmd) => state.message,
-        trueCond: "summonPlayer",
+        trueCond: "callPlayer",
         falseCond: "start",
     },
-    summonPlayer: {
+    callPlayer: {
         exec(mgr, state, p, cmd){
             state.command = {n: "say", v: "go"};
             state.stay = true;
@@ -50,13 +50,7 @@ const DT = {
     seeOrSenseProcessing: {
         condition: (mgr, state, p, cmd) => cmd === "see",
         trueCond: "seeProcessing",
-        falseCond: "senseProcessing",
-    },
-    senseProcessing: {
-        exec(mgr, state, p, cmd){
-            ;
-        },
-        next: "sendCommand",
+        falseCond: "sendCommand",
     },
     hearProcessing: {
         exec(mgr, state, p, cmd){
@@ -72,10 +66,10 @@ const DT = {
     },
     isMoved: {
         condition: (mgr, state, p, cmd) => state.previous_play_on,
-        trueCond: "move2start", 
+        trueCond: "moveToStart", 
         falseCond: "sendCommand",
     },
-    move2start: {
+    moveToStart: {
         exec(mgr, state, p, cmd){
             state.command = {n: "move", v: state.start_coords[0] + " " + state.start_coords[1]};
             state.next = 0;
@@ -164,16 +158,16 @@ const DT = {
     },
     wait: {
         condition: (mgr, state, p, cmd) => state.wait >= waitTime,
-        trueCond: "findPlayer",
-        falseCond: "waitIncrement",
+        trueCond: "findScorer",
+        falseCond: "waiting",
     },
-    waitIncrement: {
+    waiting: {
         exec(mgr, state, p, cmd){
             state.wait += 1;
         },
         next: "sendCommand",
     },
-    findPlayer: {
+    findScorer: {
         exec(mgr, state, p){
             console.log(p)
             state.command = {n: "kick", v: "5 40"}
