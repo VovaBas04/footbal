@@ -37,5 +37,4 @@ const Goalie_ctrl_high = {
 		}
 	}
 }
-
 module.exports = Goalie_ctrl_high;

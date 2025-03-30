@@ -13,7 +13,6 @@ const CTRL_HIGH = {
 				}
 
 			}
-			// удар
 			let side = infoAnalyzer.side;
 			if (side == "l"){
 				if (infoAnalyzer.state.ball){
@@ -41,7 +40,6 @@ const CTRL_HIGH = {
 
 				}
 			}
-			//...........
 
 			act = utils.pass(infoAnalyzer);
 			if (act){
