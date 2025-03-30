@@ -10,7 +10,7 @@ const goalie_middle = require("./goalie_ctrl_middle");
 const goalie_high = require("./goalie_ctrl_high");
 
 let teamName = "Supercomputer"
-let enemyName = "Sinep"
+let enemyName = "ENEMY"
 
 function createAgent(team, goalkeeper, controllers, top, bottom, center, start_x, start_y){
     let agent = new Agent(team, goalkeeper);
